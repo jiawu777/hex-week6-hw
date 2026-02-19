@@ -11,7 +11,7 @@ export const router = createHashRouter([
         {path:'/',element:<Home/>},
         {path:'/cart',element:<Cart/>},
         {path:'/products',element:<Products/>},
-        {path:'/singleProduct',element:<SingleProduct/>},
+        {path:'/singleProduct/:id',element:<SingleProduct/>},
     ]},
 {path:'*',element:<Notfound/>},
 ])

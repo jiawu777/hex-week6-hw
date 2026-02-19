@@ -4,8 +4,8 @@ const FrontendLayout = ()=>{
     return(
         <>
             <header>
-                <nav class="navbar navbar-expand-lg bg-body-tertiary">
-                     <div class="container-fluid">
+                <nav className="navbar navbar-expand-lg bg-body-tertiary">
+                     <div className="container-fluid">
                         <div className="collapse navbar-collapse" id="navbarNav">
                             <ul className="navbar-nav">
                                 <li className="nav-item">
