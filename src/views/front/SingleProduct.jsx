@@ -30,7 +30,7 @@ const SingleProduct = ()=>{
         }
          try {
             await axios.post(`${API_BASE}/api/${API_PATH}/cart`,{data});
-            navigate('/cart');
+            navigate('/checkout');
         } catch (error) {
             console.log(error.response);
         }

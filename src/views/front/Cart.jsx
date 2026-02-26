@@ -1,23 +1,11 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const {VITE_API_BASE, VITE_API_PATH}=import.meta.env
 const API_BASE = VITE_API_BASE;
 const API_PATH = VITE_API_PATH;
 
-const Cart=() => {
-    const navigate = useNavigate();
-    const [cart,setCart]=useState([]);
-    const getCartItems = async()=>{
-        try {
-            const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-            if(res.data.data.carts.length===0)return(navigate('/products'));
-            setCart(res.data.data);
-        } catch (error) {
-            console.log(error.response);
-        }
-    }
+const Cart=({getCartItems, cart}) => {
 
     const deleteAllCartItems = async()=>{
         try {
@@ -53,7 +41,7 @@ const Cart=() => {
 
     useEffect(()=>{
         getCartItems();
-    },[])
+    },[cart])
 
 
     return(
