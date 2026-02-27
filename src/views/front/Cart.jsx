@@ -62,7 +62,8 @@ const Cart=({getCartItems, cart, updateCartQty, setCount}) => {
             <div className="input-group mb-3">
             <input type="number" className="form-control" 
             aria-label="qty" aria-describedby="basic-addon2"  defaultValue={cartItem.qty} value={cartItem.qty} 
-            onChange={(e)=>{updateCartQty(cartItem.id,cartItem.product_id,e.target.value)}}/>
+            onChange={(e)=>{if(e.target.value<1 || e.target.value>10)return;
+            updateCartQty(cartItem.id,cartItem.product_id,e.target.value)}}/>
             <span className="input-group-text" id="basic-addon2">{cartItem.product.unit}</span>
             </div>
         </td>

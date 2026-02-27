@@ -70,6 +70,11 @@ const Checkout = () => {
                     // 1. Products產品列表：直接點擊加入購物車按鈕，預設增加 1 個
                     // 2. SingleProductModal查看更多：數量輸入框、+ - 按鈕
                     // 3. Cart購物車：數量輸入框、上下按鈕
+                    console.log("finalQty", finalQty);
+                    if(finalQty < 1 || finalQty > 10){
+                        alert("購買數量必須在 1 到 10 之間");
+                        return;
+                    }
                     await updateCartQty(cartItem.id,id,finalQty);
                  
                 }else{
