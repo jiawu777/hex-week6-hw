@@ -1,9 +1,11 @@
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import  validation  from '../../utils/validation';
+import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.js';
+import validation  from '../../utils/validation';
 import Products from './Products';
 import Cart from './Cart';
+import SingleProductModal from './SingleProductModal';
 
 const {VITE_API_BASE, VITE_API_PATH}=import.meta.env
 const API_BASE = VITE_API_BASE;
@@ -12,18 +14,12 @@ const API_PATH = VITE_API_PATH;
 const Checkout = () => {
     const [cart,setCart]=useState({});
     const [listLoadingState,setListLoadingState]=useState([]);
-    const {register, handleSubmit,formState:{errors,isValid},reset} = useForm(
-        {
-            mode:"onChange",
-        //     defaultValues:{
-        //     email:"test@gamil.com",
-        //     name:"小明",
-        //     tel:"0912345678",
-        //     address:"臺北市信義區信義路5段7號",
-        //     message:"請盡快送達，謝謝！",
-        // }
-    }
-    )
+    const productModalRef = useRef(null);
+    const [productData,setProductData]=useState({});
+    const {register, handleSubmit,formState:{errors,isValid},reset} = useForm({mode:"onChange",})
+    const [ count, setCount ] = useState(1);
+
+    
 
      const getCartItems = async()=>{
         try {
@@ -56,36 +52,41 @@ const Checkout = () => {
             }
             try {
                 await axios.put(`${API_BASE}/api/${API_PATH}/cart/${cartId}`,{data});
+                setCount(1);
                 await getCartItems();
             } catch (error) {
                 alert("更新購物車商品數量失敗:" + error.response.data.message);
             }
         }
 
-    const handleLoadingState = async(id)=>{
+    const handleQty = async(id,targetQty=null)=>{
         setListLoadingState((prevState)=>([...prevState,id]));
         const cartItem = cart.carts.find((cartItem)=> cartItem.product_id === id);
-        const cartId = cartItem ? cartItem.id : null;
-        const productId = id;
-
+       
             try {
                 if(cartItem){
-                    let newQty = cartItem.qty + 1;
-                    await updateCartQty(cartId,productId,newQty);
+                     const finalQty = targetQty ? targetQty :cartItem.qty + 1;
+                    // 有 3 個地方可以改變數量：
+                    // 1. Products產品列表：直接點擊加入購物車按鈕，預設增加 1 個
+                    // 2. SingleProductModal查看更多：數量輸入框、+ - 按鈕
+                    // 3. Cart購物車：數量輸入框、上下按鈕
+                    await updateCartQty(cartItem.id,id,finalQty);
                  
                 }else{
-                    await addNewCartItem(id,1)
+                    await addNewCartItem(id,targetQty || 1)
                 }
             } catch (error) {
                 alert("處理購物車商品增減失敗:" + error.response.data.message);
             }finally{
+                setCount(1);
                 setListLoadingState((prev)=>{
                     return prev.filter((i)=> i !== id)
                 })}
+                closeModal();
 
     }
 
-    const onSubmit = async(data) =>{
+    const onSubmitOrders = async(data) =>{
         const dataToSend = {
                 user: {
                 name: data.name,
@@ -105,16 +106,52 @@ const Checkout = () => {
                 alert("訂單傳送失敗:" + error.response.data.message);
             }
 
+    }
+
+    useEffect(()=>{
+         productModalRef.current = new bootstrap.Modal('#productModal', {
+      keyboard: false
+    });
+
+    // Modal 關閉時移除焦點
+    document
+          .querySelector("#productModal")
+          .addEventListener("hide.bs.modal", () => {
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
             }
+          });
+    },[])
+
+    const openModal = async(product)=>{
+        setProductData(product);
+        const cartItem = cart.carts.find((cartItem)=> cartItem.product_id === product.id);
+        setCount(cartItem ? cartItem.qty : 1);
+        await getSingleProduct(product.id);
+        productModalRef.current.show();
+    }
+
+    const closeModal = ()=>{
+        productModalRef.current.hide();
+    }
+
+     const getSingleProduct = async(id)=>{
+        try {
+            await axios.get(`${API_BASE}/api/${API_PATH}/product/${id}`);
+        } catch (error) {
+            alert("取得單一商品資料失敗:" + error.response.data.message);
+        }
+    }
 
     return (
-        <>
-        <Products  cart={cart} getCartItems={getCartItems} updateCartQty={updateCartQty} addNewCartItem={addNewCartItem} handleLoadingState={handleLoadingState} listLoadingState={listLoadingState}/>
+        <> 
+        <SingleProductModal productData={productData} closeModal={closeModal} handleQty={handleQty} count={count} setCount={setCount}/>
+        <Products openModal={openModal} cart={cart} getCartItems={getCartItems} updateCartQty={updateCartQty} addNewCartItem={addNewCartItem} handleQty={handleQty} listLoadingState={listLoadingState} count={count} setCount={setCount}/>
         < br/>
-        <Cart getCartItems={getCartItems} cart={cart} updateCartQty={updateCartQty}/>
+        <Cart getCartItems={getCartItems} cart={cart} updateCartQty={updateCartQty} count={count} setCount={setCount}/>
         <div className="container" style={{width: "600px"}}>
             <div className="my-5 row justify-content-center">
-                <form className="col-lg-6" onSubmit={handleSubmit(onSubmit)}>
+                <form className="col-lg-6" onSubmit={handleSubmit(onSubmitOrders)}>
                     <div className="mb-3">
                         <label htmlFor="email" className="form-label">
                             Email
