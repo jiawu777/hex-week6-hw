@@ -14,9 +14,9 @@ const FrontendLayout = ()=>{
                                 {/* <li className="nav-item">
                                     <NavLink className="nav-link" to="/cart">購物車</NavLink>
                                 </li> */}
-                                <li className="nav-item">
+                                {/* <li className="nav-item">
                                     <NavLink className="nav-link" to="/products">產品列表</NavLink>
-                                </li>
+                                </li> */}
                                 <li className="nav-item">
                                     <NavLink className="nav-link" to="/checkout">結帳</NavLink>
                                 </li>

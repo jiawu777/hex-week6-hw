@@ -1,20 +1,21 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+
 
 const {VITE_API_BASE, VITE_API_PATH}=import.meta.env
 const API_BASE = VITE_API_BASE;
 const API_PATH = VITE_API_PATH;
 
-const Products = ()=>{
+const Products = ({ handleLoadingState, listLoadingState })=>{
 const [productData,setProductData]=useState([]);
-    
+
+
 const getProducts = async()=>{
         try {
             const res = await axios.get(`${API_BASE}/api/${API_PATH}/products/all`);
             setProductData(res.data.products);
         } catch (error) {
-            console.log(error.response);
+            alert("取得商品資料失敗:" + error.response.data.message);
         }
     }
 
@@ -24,20 +25,56 @@ const getProducts = async()=>{
     
     
     return(
-        <div className="container text-center">
-            <div className="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
-                {productData.map((item)=>(
-                <div className="card col" key={item.id} style={{width: "18rem"}}>
-                    <img src={item.imageUrl} className="card-img-top" alt="圖片無法顯示"/>
-                    <div className="card-body">
-                        <h5 className="card-title">{item.title}</h5>
-                        <p className="card-text">{item.description}</p>
-                        <NavLink to={`/singleProduct/${item.id}`} className="btn btn-primary">更多細節</NavLink>
+
+        <table className="table align-middle">
+            <thead>
+                <tr>
+                <th>圖片</th>
+                <th>商品名稱</th>
+                <th>價格</th>
+                <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {productData.map((item)=>(
+                <tr key={item.id}>
+                <td style={{ width: "200px" }}>
+                    <div
+                    style={{
+                        height: "100px",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundImage: `url(${item.imageUrl})`,
+                    }}
+                    ></div>
+                </td>
+                <td>{item.title}</td>
+                <td>
+                    <del className="h6">原價：{item.origin_price}</del>
+                    <div className="h5">特價：{item.price}</div>
+                </td>
+                <td>
+                    <div className="btn-group btn-group-sm">
+                    <button type="button" className="btn btn-outline-secondary">
+                        <i className="fas fa-spinner fa-pulse"></i>
+                        查看更多
+                    </button>
+                    <button type="button" className="btn btn-outline-danger" onClick={()=>{
+                        handleLoadingState(item.id)}}
+                        disabled={listLoadingState.includes(item.id)}>
+                        {listLoadingState.includes(item.id) ? (
+                            <i className="fas fa-spinner fa-pulse"></i>
+                        ) : (
+                            <i className="fas fa-shopping-cart"></i>
+                        )}
+                        加到購物車
+                    </button>
                     </div>
-                </div>
+                </td>
+                </tr>
             ))}
-            </div>
-        </div>
+            </tbody>
+            </table>
 
 )}
 

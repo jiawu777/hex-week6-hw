@@ -20,7 +20,7 @@ const SingleProduct = ()=>{
             const res = await axios.get(`${API_BASE}/api/${API_PATH}/product/${id}`);
             setProduct(res.data.product);
         } catch (error) {
-            console.log(error.response);
+            alert("取得單一商品資料失敗:" + error.response.data.message);
         }
     }
 
@@ -32,7 +32,7 @@ const SingleProduct = ()=>{
             await axios.post(`${API_BASE}/api/${API_PATH}/cart`,{data});
             navigate('/checkout');
         } catch (error) {
-            console.log(error.response);
+            alert("加入購物車失敗:" + error.response.data.message);
         }
     }
 

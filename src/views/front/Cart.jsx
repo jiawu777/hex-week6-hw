@@ -5,29 +5,18 @@ const {VITE_API_BASE, VITE_API_PATH}=import.meta.env
 const API_BASE = VITE_API_BASE;
 const API_PATH = VITE_API_PATH;
 
-const Cart=({getCartItems, cart}) => {
+
+const Cart=({getCartItems, cart, updateCartQty}) => {
 
     const deleteAllCartItems = async()=>{
         try {
             await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
             getCartItems();
         } catch (error) {
-            console.log(error.response);
+            alert("清空購物車失敗:" + error.response.data.message);
         }
     }
 
-    const updateCartQty = async(id,qty)=>{
-        const data = {
-            product_id:id,
-            qty:Number(qty)
-        }
-        try {
-            await axios.put(`${API_BASE}/api/${API_PATH}/cart/${id}`,{data});
-            getCartItems();
-        } catch (error) {
-            console.log(error.response);
-        }
-    }
 
         const deleteCartItem = async(id)=>{
 
@@ -35,13 +24,13 @@ const Cart=({getCartItems, cart}) => {
             await axios.delete(`${API_BASE}/api/${API_PATH}/cart/${id}`);
             getCartItems();
         } catch (error) {
-            console.log(error.response);
+            alert("刪除商品失敗:" + error.response.data.message);
         }
     }
 
     useEffect(()=>{
         getCartItems();
-    },[cart])
+    },[])
 
 
     return(
@@ -69,7 +58,7 @@ const Cart=({getCartItems, cart}) => {
         <td>{cartItem.product.title}</td>
         <td>
             <div className="input-group mb-3">
-            <input type="number" className="form-control" aria-label="qty" aria-describedby="basic-addon2" defaultValue={cartItem.qty} onChange={(e)=>{updateCartQty(cartItem.id,e.target.value)}}/>
+            <input type="number" className="form-control" aria-label="qty" aria-describedby="basic-addon2" defaultValue={cartItem.qty} value={cartItem.qty} onChange={(e)=>{updateCartQty(cartItem.id,cartItem.product_id,e.target.value)}}/>
             <span className="input-group-text" id="basic-addon2">{cartItem.product.unit}</span>
             </div>
         </td>
