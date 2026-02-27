@@ -16,7 +16,14 @@ const validation = {
         },
         address:{
             required:"請輸入收件地址"
-        }
+        },
+        password: {
+            required: "請輸入密碼",
+            minLength: {
+                value: 6,
+                message: "密碼長度至少需 6 碼",
+            }
+        },
 }
 
 export default validation;
